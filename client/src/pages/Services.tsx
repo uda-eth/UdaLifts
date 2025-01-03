@@ -7,19 +7,16 @@ const services = [
     title: "Personalized Training Programs",
     description: "Custom workout plans tailored to your goals, fitness level, and schedule",
     icon: Dumbbell,
-    price: "$199/month",
   },
   {
     title: "One-on-one Coaching",
     description: "Direct guidance and support through in-person or virtual sessions",
     icon: Target,
-    price: "$299/month",
   },
   {
     title: "Nutrition Planning",
     description: "Detailed meal plans and nutritional guidance for optimal results",
     icon: Heart,
-    price: "$149/month",
   },
 ];
 
@@ -42,10 +39,7 @@ export default function Services() {
                 <CardTitle>{service.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">{service.description}</p>
-                <p className="text-2xl font-bold text-primary mb-6">
-                  {service.price}
-                </p>
+                <p className="text-gray-600 mb-6">{service.description}</p>
                 <Button className="w-full">Apply Now</Button>
               </CardContent>
             </Card>
