@@ -39,8 +39,7 @@ export default function Services() {
                 <CardTitle>{service.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-6">{service.description}</p>
-                <Button className="w-full">Apply Now</Button>
+                <p className="text-gray-600">{service.description}</p>
               </CardContent>
             </Card>
           ))}
