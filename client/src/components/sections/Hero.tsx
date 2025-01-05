@@ -12,7 +12,7 @@ export default function Hero() {
                 <span className="text-primary">Fitness Journey</span> Now!
               </h1>
               <p className="mt-6 text-lg text-gray-600 max-w-3xl">
-                I will help you transform your weakness into strengths through
+                We will help you transform your weakness into strengths through
                 personalized coaching, expert guidance, and unwavering support.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
@@ -24,8 +24,8 @@ export default function Hero() {
             </div>
             <div className="lg:relative lg:h-full">
               <img
-                src="https://images.unsplash.com/photo-1603503363848-6952525df449"
-                alt="Fitness trainer"
+                src="/transformation_pic.jpg"
+                alt="Fitness transformation"
                 className="rounded-lg shadow-xl w-full h-auto lg:h-full lg:w-full lg:object-cover"
               />
             </div>
