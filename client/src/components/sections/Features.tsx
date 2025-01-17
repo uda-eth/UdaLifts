@@ -20,7 +20,7 @@ const features = [
   },
   {
     name: "24/7 Messaging Support",
-    description: "Always available to answer your questions and provide motivation",
+    description: "Always available to answer your questions and provide motivation when needed",
     icon: MessageCircle,
   },
 ];

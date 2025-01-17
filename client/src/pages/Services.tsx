@@ -18,6 +18,11 @@ const services = [
     description: "Detailed meal plans and nutritional guidance for optimal results",
     icon: Heart,
   },
+  {
+    title: "Nutrition Planning",
+    description: "Detailed meal plans and nutritional guidance for optimal results",
+    icon: Heart,
+  },
 ];
 
 export default function Services() {
