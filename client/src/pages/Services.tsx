@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dumbbell, Heart, Target, MessageCircleMessageCircle } from "lucide-react";
+import { Dumbbell, Heart, Target, MessageCircle } from "lucide-react";
 
 const services = [
   {
@@ -19,8 +19,8 @@ const services = [
     icon: Heart,
   },
   {
-    title: "Nutrition Planning",
-    description: "Detailed meal plans and nutritional guidance for optimal results",
+    title: "Weekly Check-Ins",
+    description: "Regular progress updates to adjust plants, review goals, and keep you accountable",
     icon: MessageCircle,
   },
 ];
