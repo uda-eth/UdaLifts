@@ -21,7 +21,7 @@ const services = [
   {
     title: "Nutrition Planning",
     description: "Detailed meal plans and nutritional guidance for optimal results",
-    icon: Heart,
+    icon: MessageCircle,
   },
 ];
 
