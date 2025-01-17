@@ -14,7 +14,7 @@ export default function About() {
         <img
           src="/images/transformation_pic.jpg"
           alt="Fitness transformation journey"
-          className="lg:relative lg:h-full"
+          className="rounded-lg shadow-xl w-full h-auto lg:h-full lg:w-full lg:object-cover"
         />
         <div className="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
