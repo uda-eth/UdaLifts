@@ -19,8 +19,8 @@ const services = [
     icon: Heart,
   },
   {
-    title: "Weekly Check-Ins",
-    description: "Regular progress updates to adjust plants, review goals, and keep you accountable",
+    title: "24/7 Messaging Support",
+    description: "Always available to answer your questions and provide motivation when needed",
     icon: MessageCircle,
   },
 ];
