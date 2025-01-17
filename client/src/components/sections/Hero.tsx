@@ -15,11 +15,8 @@ export default function Hero() {
                 We will help you transform your weakness into strengths through
                 personalized coaching, expert guidance, and unwavering support.
               </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <div className="mt-8">
                 <Button size="lg">Apply for a Free Consultation</Button>
-                <Button size="lg" variant="outline">
-                  Learn More
-                </Button>
               </div>
             </div>
             <div className="lg:relative lg:h-full">
