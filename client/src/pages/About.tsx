@@ -24,7 +24,7 @@ export default function About() {
             <p className="mt-4 text-lg text-gray-600">
               The true purpose behind my guide is for you to improve your physique, increase the quality AND length of your life, and become the person you were meant to be. 
 
-              Even if you choose to implement only 1% of my suggestions, you will become 1% better than you were before and that’s all that matters.	
+              Even if you choose to implement only 1% of my suggestions, you will become 1% better than you were before and that's all that matters.	
 
             </p>
 
@@ -38,7 +38,11 @@ export default function About() {
             </p>
 
             <div className="mt-8">
-              <Button size="lg">Learn More About Our Services</Button>
+              <Button size="lg" asChild>
+                <a href="https://g8th2cgw71l.typeform.com/to/rFQiFFcO" target="_blank" rel="noopener noreferrer">
+                  Learn More About Our Services
+                </a>
+              </Button>
             </div>
           </div>
 
@@ -48,7 +52,7 @@ export default function About() {
               //alt="Fitness coach"
               //className="lg:relative lg:h-full"
             />
-            
+
           </div>
         </div>
       </div>

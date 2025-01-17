@@ -51,7 +51,11 @@ export default function Services() {
         </div>
 
         <div className="mt-16 text-center">
-          <Button size="lg">Apply for a Free Consultation</Button>
+          <Button size="lg" asChild>
+            <a href="https://g8th2cgw71l.typeform.com/to/rFQiFFcO" target="_blank" rel="noopener noreferrer">
+              Apply for a Free Consultation
+            </a>
+          </Button>
         </div>
       </div>
     </div>
