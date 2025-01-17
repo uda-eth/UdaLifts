@@ -36,20 +36,12 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-gray-900">Follow Us</h3>
             <div className="mt-4 flex space-x-4">
               <a
-                href="#"
+                href="https://www.instagram.com/steveudotong/"
                 className="text-gray-600 hover:text-primary"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <SiInstagram className="h-6 w-6" />
-              </a>
-              <a
-                href="#"
-                className="text-gray-600 hover:text-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <SiX className="h-6 w-6" />
               </a>
             </div>
           </div>
