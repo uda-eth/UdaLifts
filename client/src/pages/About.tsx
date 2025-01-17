@@ -11,12 +11,19 @@ export default function About() {
           </p>
         </div>
 
+        <img
+          src="/images/transformation_pic.jpg"
+          alt="Fitness transformation journey"
+          className="rounded-lg shadow-xl w-full h-auto lg:h-full lg:w-full lg:object-cover"
+        />
         <div className="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-3xl font-bold text-gray-900">Our Mission</h2>
             <p className="mt-4 text-lg text-gray-600">
-              To empower individuals to transform their lives through fitness, providing
-              expert guidance and unwavering support on their journey to better health.
+              The true purpose behind my guide is for you to improve your physique, increase the quality AND length of your life, and become the person you were meant to be. 
+
+              Even if you choose to implement only 1% of my suggestions, you will become 1% better than you were before and that’s all that matters.	
+
             </p>
 
             <h2 className="mt-8 text-3xl font-bold text-gray-900">
@@ -33,17 +40,13 @@ export default function About() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-//cols-2 gap-4">
             <img
-              src="https://images.unsplash.com/photo-1617336581611-0afe60655091"
-              alt="Fitness coach"
-              className="rounded-lg shadow-lg"
+              //src="https://images.unsplash.com/photo-1617336581611-0afe60655091"
+              //alt="Fitness coach"
+              //className="lg:relative lg:h-full"
             />
-            <img
-              src="https://images.unsplash.com/photo-1692369608021-c722c4fc7088"
-              alt="Gym workout"
-              className="rounded-lg shadow-lg mt-8"
-            />
+            
           </div>
         </div>
       </div>
