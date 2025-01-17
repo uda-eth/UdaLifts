@@ -19,7 +19,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex-shrink-0 flex items-center">
             <Link href="/">
-              <span className="text-xl font-bold text-primary">FitCoach</span>
+              <span className="text-xl font-bold text-primary">UdaLifts</span>
             </Link>
           </div>
 

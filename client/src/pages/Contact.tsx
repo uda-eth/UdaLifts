@@ -74,7 +74,7 @@ export default function Contact() {
               <div className="mt-4 space-y-4">
                 <div className="flex items-center space-x-3 text-gray-600">
                   <Mail className="h-5 w-5" />
-                  <span>contact@fitcoach.com</span>
+                  <span>contact@udalifts.com</span>
                 </div>
                 <div className="flex items-center space-x-3 text-gray-600">
                   <Phone className="h-5 w-5" />

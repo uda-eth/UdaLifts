@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <Link href="/">
-              <span className="text-xl font-bold text-primary">FitCoach</span>
+              <span className="text-xl font-bold text-primary">UdaLifts</span>
             </Link>
             <p className="mt-4 text-sm text-gray-600">
               Transforming lives through personalized fitness coaching and expert guidance.
@@ -57,7 +57,7 @@ export default function Footer() {
 
         <div className="mt-8 border-t border-gray-200 pt-8">
           <p className="text-sm text-gray-600 text-center">
-            © {currentYear} FitCoach. All rights reserved.
+            © {currentYear} UdaLifts. All rights reserved.
           </p>
         </div>
       </div>
