@@ -24,7 +24,7 @@ export default function Hero() {
             </div>
             <div className="lg:relative lg:h-full">
               <img
-                src="/images/transformation_pic.jpg"
+                src="/images/backpose.jpg"
                 alt="Fitness transformation journey"
                 className="rounded-lg shadow-xl w-full h-auto lg:h-full lg:w-full lg:object-cover"
               />
