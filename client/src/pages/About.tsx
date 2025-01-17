@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 export default function About() {
+  const { trackButtonClick } = useAnalytics();
+
   return (
     <div className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,7 +28,6 @@ export default function About() {
               The true purpose behind my guide is for you to improve your physique, increase the quality AND length of your life, and become the person you were meant to be. 
 
               Even if you choose to implement only 1% of my suggestions, you will become 1% better than you were before and that's all that matters.	
-
             </p>
 
             <h2 className="mt-8 text-3xl font-bold text-gray-900">
@@ -38,7 +40,11 @@ export default function About() {
             </p>
 
             <div className="mt-8">
-              <Button size="lg" asChild>
+              <Button 
+                size="lg" 
+                asChild
+                onClick={() => trackButtonClick('learn_more', 'about')}
+              >
                 <a href="https://g8th2cgw71l.typeform.com/to/rFQiFFcO" target="_blank" rel="noopener noreferrer">
                   Learn More About Our Services
                 </a>
@@ -46,13 +52,12 @@ export default function About() {
             </div>
           </div>
 
-          <div className="grid grid-//cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <img
               //src="https://images.unsplash.com/photo-1617336581611-0afe60655091"
               //alt="Fitness coach"
               //className="lg:relative lg:h-full"
             />
-
           </div>
         </div>
       </div>

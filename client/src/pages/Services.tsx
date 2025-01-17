@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dumbbell, Heart, Target, MessageCircle } from "lucide-react";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 const services = [
   {
@@ -26,6 +27,8 @@ const services = [
 ];
 
 export default function Services() {
+  const { trackButtonClick } = useAnalytics();
+
   return (
     <div className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -51,7 +54,11 @@ export default function Services() {
         </div>
 
         <div className="mt-16 text-center">
-          <Button size="lg" asChild>
+          <Button 
+            size="lg" 
+            asChild
+            onClick={() => trackButtonClick('consultation', 'services')}
+          >
             <a href="https://g8th2cgw71l.typeform.com/to/rFQiFFcO" target="_blank" rel="noopener noreferrer">
               Apply for a Free Consultation
             </a>

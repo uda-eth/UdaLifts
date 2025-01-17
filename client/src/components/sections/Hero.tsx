@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 export default function Hero() {
+  const { trackButtonClick } = useAnalytics();
+
   return (
     <div className="relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,7 +19,11 @@ export default function Hero() {
                 personalized coaching, expert guidance, and unwavering support.
               </p>
               <div className="mt-8">
-                <Button size="lg" asChild>
+                <Button 
+                  size="lg" 
+                  asChild 
+                  onClick={() => trackButtonClick('consultation', 'hero')}
+                >
                   <a href="https://g8th2cgw71l.typeform.com/to/rFQiFFcO" target="_blank" rel="noopener noreferrer">
                     Apply for a Free Consultation
                   </a>
