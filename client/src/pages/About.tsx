@@ -11,11 +11,13 @@ export default function About() {
           </p>
         </div>
 
-        <img
-          src="/images/transformation_pic.jpg"
-          alt="Fitness transformation journey"
-          className="rounded-lg shadow-xl w-full h-auto lg:h-full lg:w-full lg:object-cover"
-        />
+        <div className="lg:relative lg:h-full">
+          <img
+            src="/images/transformation_pic.jpg"
+            alt="Fitness transformation journey"
+            className="rounded-lg shadow-xl w-full h-auto lg:h-full lg:w-full lg:object-cover"
+          />
+        </div>
         <div className="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-3xl font-bold text-gray-900">Our Mission</h2>
