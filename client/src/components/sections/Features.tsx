@@ -3,19 +3,20 @@ import { Dumbbell, Heart, MessageCircle, Target } from "lucide-react";
 
 const features = [
   {
+    name: "One-on-one Coaching",
+      description: "Personal attention and guidance throughout your transformation",
+      icon: Target,
+  },
+  {
     name: "Customized Workout Plans",
-    description: "Tailored fitness programs designed specifically for your goals and needs",
-    icon: Dumbbell,
+      description: "Tailored fitness programs designed specifically for your goals and needs",
+      icon: Dumbbell,
+    
   },
   {
     name: "Nutrition Guidance",
-    description: "Expert advice on nutrition to complement your fitness journey",
-    icon: Heart,
-  },
-  {
-    name: "One-on-one Coaching",
-    description: "Personal attention and guidance throughout your transformation",
-    icon: Target,
+      description: "Expert advice on nutrition to complement your fitness journey",
+      icon: Heart,
   },
   {
     name: "24/7 Messaging Support",
