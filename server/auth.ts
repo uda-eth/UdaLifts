@@ -26,9 +26,6 @@ const crypto = {
     )) as Buffer;
     return timingSafeEqual(hashedPasswordBuf, suppliedPasswordBuf);
   },
-  generateVerificationToken: () => {
-    return randomBytes(32).toString("hex");
-  }
 };
 
 // extend express user object with our schema
@@ -79,10 +76,6 @@ export function setupAuth(app: Express) {
           return done(null, false, { message: "Incorrect password." });
         }
 
-        if (!user.emailVerified) {
-          return done(null, false, { message: "Please verify your email first." });
-        }
-
         return done(null, user);
       } catch (err) {
         return done(err);
@@ -118,7 +111,7 @@ export function setupAuth(app: Express) {
 
       const { username, email, password } = result.data;
 
-      // Check if user or email already exists
+      // Check if user already exists
       const [existingUser] = await db
         .select()
         .from(users)
@@ -129,6 +122,7 @@ export function setupAuth(app: Express) {
         return res.status(400).send("Username already exists");
       }
 
+      // Check if email already exists
       const [existingEmail] = await db
         .select()
         .from(users)
@@ -138,11 +132,6 @@ export function setupAuth(app: Express) {
       if (existingEmail) {
         return res.status(400).send("Email already registered");
       }
-
-      // Generate verification token
-      const verificationToken = crypto.generateVerificationToken();
-      const verificationTokenExpiry = new Date();
-      verificationTokenExpiry.setHours(verificationTokenExpiry.getHours() + 24);
 
       // Hash the password
       const hashedPassword = await crypto.hash(password);
@@ -154,70 +143,25 @@ export function setupAuth(app: Express) {
           username,
           email,
           password: hashedPassword,
-          verificationToken,
-          verificationTokenExpiry,
-          emailVerified: false,
         })
         .returning();
 
-      // TODO: Send verification email
-      // For now, return the verification token in the response
-      return res.json({
-        message: "Registration successful. Please check your email to verify your account.",
-        verificationToken, // In production, this should be sent via email
+      // Log the user in automatically after registration
+      req.login(newUser, (err) => {
+        if (err) {
+          return next(err);
+        }
+        return res.json({
+          message: "Registration successful",
+          user: { id: newUser.id, username: newUser.username, email: newUser.email },
+        });
       });
     } catch (error) {
       next(error);
     }
   });
 
-  app.get("/api/verify-email/:token", async (req, res) => {
-    const { token } = req.params;
-
-    try {
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.verificationToken, token))
-        .limit(1);
-
-      if (!user) {
-        return res.status(400).send("Invalid verification token");
-      }
-
-      if (user.emailVerified) {
-        return res.status(400).send("Email already verified");
-      }
-
-      if (user.verificationTokenExpiry && new Date() > user.verificationTokenExpiry) {
-        return res.status(400).send("Verification token expired");
-      }
-
-      // Update user verification status
-      await db
-        .update(users)
-        .set({
-          emailVerified: true,
-          verificationToken: null,
-          verificationTokenExpiry: null,
-        })
-        .where(eq(users.id, user.id));
-
-      return res.json({ message: "Email verified successfully. You can now log in." });
-    } catch (error) {
-      console.error("Error verifying email:", error);
-      return res.status(500).send("Error verifying email");
-    }
-  });
-
   app.post("/api/login", (req, res, next) => {
-    const result = insertUserSchema.safeParse(req.body);
-    if (!result.success) {
-      return res
-        .status(400)
-        .send("Invalid input: " + result.error.issues.map(i => i.message).join(", "));
-    }
-
     const cb = (err: any, user: Express.User, info: IVerifyOptions) => {
       if (err) {
         return next(err);

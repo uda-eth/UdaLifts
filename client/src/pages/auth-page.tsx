@@ -23,6 +23,15 @@ import {
 } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocation } from "wouter";
+import { z } from "zod";
+
+// Create a separate schema for login
+const loginSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function AuthPage() {
   const { login, register } = useUser();
@@ -76,7 +85,7 @@ export default function AuthPage() {
                   }
                   toast({
                     title: "Success",
-                    description: "Registration successful! You can now log in.",
+                    description: "Registration successful!",
                   });
                   setLocation("/");
                 } catch (error: any) {
@@ -95,13 +104,12 @@ export default function AuthPage() {
   );
 }
 
-function LoginForm({ onSubmit }: { onSubmit: (data: InsertUser) => Promise<void> }) {
-  const form = useForm<InsertUser>({
-    resolver: zodResolver(insertUserSchema),
+function LoginForm({ onSubmit }: { onSubmit: (data: LoginFormData) => Promise<void> }) {
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       username: "",
       password: "",
-      email: "",
     },
   });
 
