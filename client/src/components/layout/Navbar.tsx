@@ -1,8 +1,9 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, LogIn } from "lucide-react";
+import { Menu, LogIn, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/hooks/use-user";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -12,6 +13,11 @@ const navigation = [
 
 export default function Navbar() {
   const [location] = useLocation();
+  const { user, logout } = useUser();
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <nav className="bg-white shadow-sm">
@@ -40,12 +46,25 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex items-center space-x-4">
-              <Link href="/auth">
-                <Button variant="outline" size="sm">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Login
-                </Button>
-              </Link>
+              {user ? (
+                <>
+                  <span className="text-sm text-gray-600">
+                    <User className="h-4 w-4 inline-block mr-1" />
+                    Welcome, {user.username}
+                  </span>
+                  <Button variant="outline" size="sm" onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Link href="/auth">
+                  <Button variant="outline" size="sm">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Login / Sign up
+                  </Button>
+                </Link>
+              )}
               <Button>Get Started Now</Button>
             </div>
           </div>
@@ -74,12 +93,25 @@ export default function Navbar() {
                       </a>
                     </Link>
                   ))}
-                  <Link href="/auth">
-                    <Button variant="outline" className="w-full">
-                      <LogIn className="h-4 w-4 mr-2" />
-                      Login / Sign up
-                    </Button>
-                  </Link>
+                  {user ? (
+                    <>
+                      <div className="px-3 py-2 text-sm text-gray-600">
+                        <User className="h-4 w-4 inline-block mr-1" />
+                        Welcome, {user.username}
+                      </div>
+                      <Button variant="outline" className="w-full" onClick={handleLogout}>
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                      </Button>
+                    </>
+                  ) : (
+                    <Link href="/auth">
+                      <Button variant="outline" className="w-full">
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Login / Sign up
+                      </Button>
+                    </Link>
+                  )}
                   <Button className="w-full">Get Started Now</Button>
                 </div>
               </SheetContent>

@@ -76,7 +76,7 @@ export default function AuthPage() {
                   }
                   toast({
                     title: "Success",
-                    description: "Please check your email to verify your account",
+                    description: "Registration successful! You can now log in.",
                   });
                   setLocation("/");
                 } catch (error: any) {
