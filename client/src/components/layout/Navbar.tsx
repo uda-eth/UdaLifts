@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -24,7 +24,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop menu */}
-          <div className="hidden md:flex md:items-center md:space-x-8">
+          <div className="hidden md:flex md:items-center md:space-x-4">
             {navigation.map((item) => (
               <Link key={item.name} href={item.href}>
                 <a
@@ -39,7 +39,15 @@ export default function Navbar() {
                 </a>
               </Link>
             ))}
-            <Button>Get Started Now</Button>
+            <div className="flex items-center space-x-4">
+              <Link href="/auth">
+                <Button variant="outline" size="sm">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+              </Link>
+              <Button>Get Started Now</Button>
+            </div>
           </div>
 
           {/* Mobile menu */}
@@ -66,6 +74,12 @@ export default function Navbar() {
                       </a>
                     </Link>
                   ))}
+                  <Link href="/auth">
+                    <Button variant="outline" className="w-full">
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Login / Sign up
+                    </Button>
+                  </Link>
                   <Button className="w-full">Get Started Now</Button>
                 </div>
               </SheetContent>
