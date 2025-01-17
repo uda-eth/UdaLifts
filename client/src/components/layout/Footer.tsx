@@ -20,7 +20,7 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-gray-900">Quick Links</h3>
             <ul className="mt-4 space-y-2">
-              {["About", "Services", "Contact", "Privacy Policy"].map((item) => (
+              {["About", "Services", "Privacy Policy"].map((item) => (
                 <li key={item}>
                   <Link href={`/${item.toLowerCase().replace(" ", "-")}`}>
                     <a className="text-sm text-gray-600 hover:text-primary">
