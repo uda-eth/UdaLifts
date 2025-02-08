@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
-// Initialize Stripe with the publishable key
+// Initialize Stripe with the publishable key in test mode
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const plans = {
   basic: {
-    id: 'price_basic',
+    id: 'price_1234', 
     name: 'Basic Plan',
     price: '29.99',
     features: [
@@ -19,7 +19,7 @@ const plans = {
     ]
   },
   premium: {
-    id: 'price_premium',
+    id: 'price_5678', 
     name: 'Premium Plan',
     price: '49.99',
     features: [
@@ -30,7 +30,7 @@ const plans = {
     ]
   },
   elite: {
-    id: 'price_elite',
+    id: 'price_9012', 
     name: 'Elite Plan',
     price: '99.99',
     features: [
@@ -50,6 +50,7 @@ const PaymentPage = () => {
   const handlePayment = async (planId: string) => {
     setLoading(planId);
     try {
+      // Add test mode indicator
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -57,11 +58,13 @@ const PaymentPage = () => {
         },
         body: JSON.stringify({
           priceId: plans[planId as keyof typeof plans].id,
+          mode: 'test' 
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Payment setup failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Payment setup failed');
       }
 
       const session = await response.json();
@@ -81,8 +84,8 @@ const PaymentPage = () => {
     } catch (error) {
       console.error('Payment error:', error);
       toast({
-        title: "Error",
-        description: "Failed to initiate payment. Please try again.",
+        title: "Payment Setup Failed",
+        description: error instanceof Error ? error.message : "Failed to initiate payment. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -92,7 +95,16 @@ const PaymentPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Choose Your Fitness Plan</h1>
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold mb-4">Choose Your Fitness Journey</h1>
+        <p className="text-lg text-gray-600">
+          Select the plan that best fits your goals and commitment level
+        </p>
+        {/* Add test mode banner */}
+        <div className="mt-4 p-2 bg-yellow-100 text-yellow-800 rounded-md">
+          Test Mode - Use card number 4242 4242 4242 4242 for testing
+        </div>
+      </div>
       <div className="grid md:grid-cols-3 gap-6">
         {Object.entries(plans).map(([key, plan]) => (
           <Card key={key} className={`p-6 ${key === 'premium' ? 'border-2 border-primary relative' : ''}`}>
