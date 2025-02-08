@@ -8,6 +8,7 @@ const navigation = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
   { name: "Services", href: "/services" },
+  { name: "Pricing", href: "/payment" },
 ];
 
 export default function Navbar() {
@@ -40,7 +41,9 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex items-center">
-              <Button>Get Started Now</Button>
+              <Button asChild>
+                <Link href="/payment">Get Started Now</Link>
+              </Button>
             </div>
           </div>
 
@@ -68,7 +71,9 @@ export default function Navbar() {
                       </a>
                     </Link>
                   ))}
-                  <Button className="w-full">Get Started Now</Button>
+                  <Button asChild className="w-full">
+                    <Link href="/payment">Get Started Now</Link>
+                  </Button>
                 </div>
               </SheetContent>
             </Sheet>
