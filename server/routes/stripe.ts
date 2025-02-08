@@ -11,19 +11,19 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 // Test mode price IDs - these should match the IDs in the frontend
 const TEST_PRICE_IDS = {
   'price_1234': {
-    amount: 2999,
+    unit_amount: 2999,
     currency: 'usd',
     recurring: { interval: 'month' },
     product_data: { name: 'Basic Plan' },
   },
   'price_5678': {
-    amount: 4999,
+    unit_amount: 4999,
     currency: 'usd',
     recurring: { interval: 'month' },
     product_data: { name: 'Premium Plan' },
   },
   'price_9012': {
-    amount: 9999,
+    unit_amount: 9999,
     currency: 'usd',
     recurring: { interval: 'month' },
     product_data: { name: 'Elite Plan' },
@@ -41,10 +41,17 @@ router.post('/create-checkout-session', async (req, res) => {
       });
     }
 
+    // Create a product first
+    const product = await stripe.products.create({
+      name: TEST_PRICE_IDS[priceId as keyof typeof TEST_PRICE_IDS].product_data.name,
+    });
+
     // Create a price for test mode
     const price = await stripe.prices.create({
-      ...TEST_PRICE_IDS[priceId as keyof typeof TEST_PRICE_IDS],
-      lookup_key: priceId, // Use the test price ID as lookup key
+      product: product.id,
+      unit_amount: TEST_PRICE_IDS[priceId as keyof typeof TEST_PRICE_IDS].unit_amount,
+      currency: TEST_PRICE_IDS[priceId as keyof typeof TEST_PRICE_IDS].currency,
+      recurring: TEST_PRICE_IDS[priceId as keyof typeof TEST_PRICE_IDS].recurring,
     });
 
     // Create the checkout session
