@@ -11,8 +11,7 @@ const getStripe = () => {
   if (!stripePromise) {
     const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
     if (!key) {
-      console.error('Missing Stripe publishable key');
-      return null;
+      throw new Error('STRIPE_PUBLISHABLE_KEY must be set');
     }
     stripePromise = loadStripe(key);
   }
