@@ -4,14 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
-// Initialize Stripe with the publishable key in test mode
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+// Initialize Stripe
+const initializeStripe = () => {
+  const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+  if (!key) {
+    console.error('Stripe publishable key is missing');
+    return null;
+  }
+  return loadStripe(key);
+};
 
-// Verify stripe initialization
-if (!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) {
-  console.error('Missing Stripe publishable key');
-}
+const stripePromise = initializeStripe();
 
+// Plan configurations
 const plans = {
   basic: {
     id: 'price_1234', 
@@ -48,17 +53,22 @@ const plans = {
   }
 };
 
-const PaymentPage = () => {
+export default function PaymentPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handlePayment = async (planId: string) => {
+    if (!stripePromise) {
+      toast({
+        title: "Configuration Error",
+        description: "Payment system is not properly configured. Please try again later.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(planId);
     try {
-      if (!stripePromise) {
-        throw new Error('Stripe has not been initialized');
-      }
-
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -66,7 +76,7 @@ const PaymentPage = () => {
         },
         body: JSON.stringify({
           priceId: plans[planId as keyof typeof plans].id,
-          mode: 'test' 
+          mode: 'test'
         }),
       });
 
@@ -77,10 +87,6 @@ const PaymentPage = () => {
 
       const session = await response.json();
       const stripe = await stripePromise;
-
-      if (!stripe) {
-        throw new Error('Stripe failed to initialize');
-      }
 
       const { error } = await stripe.redirectToCheckout({
         sessionId: session.id,
@@ -100,6 +106,18 @@ const PaymentPage = () => {
       setLoading(null);
     }
   };
+
+  // If Stripe is not initialized, show a message
+  if (!stripePromise) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-4xl font-bold mb-4">Payment System Unavailable</h1>
+        <p className="text-lg text-gray-600">
+          Our payment system is currently unavailable. Please try again later.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -142,6 +160,4 @@ const PaymentPage = () => {
       </div>
     </div>
   );
-};
-
-export default PaymentPage;
+}
