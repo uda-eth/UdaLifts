@@ -11,7 +11,7 @@ const getStripe = () => {
   if (!stripePromise) {
     const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
     if (!key) {
-      throw new Error('STRIPE_PUBLISHABLE_KEY must be set');
+      throw new Error('Stripe publishable key is missing');
     }
     stripePromise = loadStripe(key);
   }
@@ -20,6 +20,7 @@ const getStripe = () => {
 
 const plans = [
   {
+    id: 'basic-plan',
     name: 'Basic Plan',
     price: 29.99,
     features: [
@@ -29,6 +30,7 @@ const plans = [
     ],
   },
   {
+    id: 'premium-plan',
     name: 'Premium Plan',
     price: 49.99,
     features: [
@@ -40,6 +42,7 @@ const plans = [
     popular: true,
   },
   {
+    id: 'elite-plan',
     name: 'Elite Plan',
     price: 99.99,
     features: [
@@ -55,25 +58,31 @@ const plans = [
 export default function PaymentPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const { toast } = useToast();
-  const [stripeInitialized, setStripeInitialized] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    // Check if Stripe is properly initialized
-    const stripe = getStripe();
-    setStripeInitialized(!!stripe);
+    const initializeStripe = async () => {
+      try {
+        const stripe = await getStripe();
+        if (stripe) {
+          setInitialized(true);
+        }
+      } catch (error) {
+        console.error('Stripe initialization error:', error);
+        toast({
+          title: "Configuration Error",
+          description: "Payment system is not properly configured. Please try again later.",
+          variant: "destructive",
+        });
+      }
+    };
 
-    if (!stripe) {
-      toast({
-        title: "Configuration Error",
-        description: "Payment system is not properly configured. Please try again later.",
-        variant: "destructive",
-      });
-    }
-  }, []);
+    initializeStripe();
+  }, [toast]);
 
-  const handlePayment = async (planName: string) => {
+  const handlePayment = async (plan: typeof plans[0]) => {
     try {
-      setLoading(planName);
+      setLoading(plan.id);
 
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
@@ -81,7 +90,9 @@ export default function PaymentPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          planName,
+          planId: plan.id,
+          planName: plan.name,
+          price: plan.price,
         }),
       });
 
@@ -99,8 +110,8 @@ export default function PaymentPage() {
     } catch (error) {
       console.error('Payment error:', error);
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Something went wrong',
+        title: 'Payment Error',
+        description: error instanceof Error ? error.message : 'Something went wrong with the payment process',
         variant: 'destructive',
       });
     } finally {
@@ -108,7 +119,7 @@ export default function PaymentPage() {
     }
   };
 
-  if (!stripeInitialized) {
+  if (!initialized) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-4xl font-bold mb-4">Loading Payment System...</h1>
@@ -134,8 +145,8 @@ export default function PaymentPage() {
       <div className="grid md:grid-cols-3 gap-6">
         {plans.map((plan) => (
           <Card
-            key={plan.name}
-            className={`${plan.popular ? 'border-2 border-primary relative' : ''}`}
+            key={plan.id}
+            className={`relative ${plan.popular ? 'border-2 border-primary' : ''}`}
           >
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -160,10 +171,10 @@ export default function PaymentPage() {
               </ul>
               <Button
                 className="w-full"
-                onClick={() => handlePayment(plan.name)}
-                disabled={loading === plan.name}
+                onClick={() => handlePayment(plan)}
+                disabled={loading === plan.id}
               >
-                {loading === plan.name ? 'Processing...' : 'Subscribe Now'}
+                {loading === plan.id ? 'Processing...' : 'Subscribe Now'}
               </Button>
             </CardContent>
           </Card>

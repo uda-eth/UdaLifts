@@ -45,8 +45,14 @@ const findAvailablePort = (startPort: number): Promise<number> => {
     server.unref();
 
     const tryPort = (port: number) => {
+      if (port > startPort + 100) {
+        reject(new Error('No available ports found in range'));
+        return;
+      }
+
       server.once('error', (err: NodeJS.ErrnoException) => {
         if (err.code === 'EADDRINUSE') {
+          log(`Port ${port} in use, trying ${port + 1}...`);
           tryPort(port + 1);
         } else {
           reject(err);
@@ -91,8 +97,8 @@ async function initializeServer() {
       serveStatic(app);
     }
 
-    // Find an available port starting from 5000
-    const PORT = await findAvailablePort(3000); // Changed start port to 3000
+    // Changed start port to 5000
+    const PORT = await findAvailablePort(5000);
     server.listen(PORT, "0.0.0.0", () => {
       log(`Server running on port ${PORT}`);
     });
