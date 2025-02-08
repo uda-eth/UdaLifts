@@ -1,9 +1,8 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, LogIn, LogOut, User } from "lucide-react";
+import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUser } from "@/hooks/use-user";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -45,26 +44,7 @@ export default function Navbar() {
                 </a>
               </Link>
             ))}
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <>
-                  <span className="text-sm text-gray-600">
-                    <User className="h-4 w-4 inline-block mr-1" />
-                    Welcome, {user.username}
-                  </span>
-                  <Button variant="outline" size="sm" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <Link href="/auth">
-                  <Button variant="outline" size="sm">
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Login / Sign up
-                  </Button>
-                </Link>
-              )}
+            <div className="flex items-center">
               <Button>Get Started Now</Button>
             </div>
           </div>
