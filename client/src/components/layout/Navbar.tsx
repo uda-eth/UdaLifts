@@ -41,8 +41,13 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex items-center">
-              <Button asChild>
-                <Link href="/payment">Get Started Now</Link>
+              <Button 
+                asChild
+                onClick={() => trackButtonClick('get_started', 'navbar')}
+              >
+                <a href="https://g8th2cgw71l.typeform.com/to/rFQiFFcO" target="_blank" rel="noopener noreferrer">
+                  Get Started Now
+                </a>
               </Button>
             </div>
           </div>
@@ -71,8 +76,14 @@ export default function Navbar() {
                       </a>
                     </Link>
                   ))}
-                  <Button asChild className="w-full">
-                    <Link href="/payment">Get Started Now</Link>
+                  <Button 
+                    asChild 
+                    className="w-full"
+                    onClick={() => trackButtonClick('get_started', 'navbar_mobile')}
+                  >
+                    <a href="https://g8th2cgw71l.typeform.com/to/rFQiFFcO" target="_blank" rel="noopener noreferrer">
+                      Get Started Now
+                    </a>
                   </Button>
                 </div>
               </SheetContent>
