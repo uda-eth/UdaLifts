@@ -38,7 +38,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Function to find an available port
 const findAvailablePort = (startPort: number): Promise<number> => {
   return new Promise((resolve, reject) => {
     const server = net.createServer();
@@ -50,20 +49,19 @@ const findAvailablePort = (startPort: number): Promise<number> => {
         return;
       }
 
-      server.once('error', (err: NodeJS.ErrnoException) => {
-        if (err.code === 'EADDRINUSE') {
-          log(`Port ${port} in use, trying ${port + 1}...`);
-          tryPort(port + 1);
-        } else {
-          reject(err);
-        }
-      });
-
-      server.once('listening', () => {
-        server.close(() => resolve(port));
-      });
-
-      server.listen(port, '0.0.0.0');
+      const testServer = net.createServer()
+        .once('error', (err: NodeJS.ErrnoException) => {
+          if (err.code === 'EADDRINUSE') {
+            log(`Port ${port} in use, trying ${port + 1}...`);
+            testServer.close(() => tryPort(port + 1));
+          } else {
+            reject(err);
+          }
+        })
+        .once('listening', () => {
+          testServer.close(() => resolve(port));
+        })
+        .listen(port, '0.0.0.0');
     };
 
     tryPort(startPort);
@@ -72,12 +70,10 @@ const findAvailablePort = (startPort: number): Promise<number> => {
 
 async function initializeServer() {
   try {
-    // Verify database connection
     if (!process.env.DATABASE_URL) {
       throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
     }
 
-    // Test database connection
     await db.execute(sql`SELECT 1`);
     log("Database connection established successfully");
 
@@ -97,20 +93,20 @@ async function initializeServer() {
       serveStatic(app);
     }
 
-    // Changed start port to 5000
     const PORT = await findAvailablePort(5000);
-    server.listen(PORT, "0.0.0.0", () => {
-      log(`Server running on port ${PORT}`);
-    });
 
-    return server;
+    return new Promise((resolve) => {
+      server.listen(PORT, "0.0.0.0", () => {
+        log(`Server running on port ${PORT}`);
+        resolve(server);
+      });
+    });
   } catch (error) {
     console.error("Failed to initialize server:", error);
     process.exit(1);
   }
 }
 
-// Start the server
 initializeServer().catch((error) => {
   console.error("Server initialization failed:", error);
   process.exit(1);

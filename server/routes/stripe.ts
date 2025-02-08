@@ -15,9 +15,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 // Validate plan name and get price
 const getPlanPrice = (planName: string): number | null => {
   const planPrices: Record<string, number> = {
-    'Basic Plan': 2999,
-    'Premium Plan': 4999,
-    'Elite Plan': 9999
+    'Basic Plan': 2999,    // $29.99
+    'Premium Plan': 4999,  // $49.99
+    'Elite Plan': 9999     // $99.99
   };
   return planPrices[planName] || null;
 };
@@ -114,10 +114,10 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
     if (!session?.subscription) {
       throw new Error('No subscription data in session');
     }
-    
+
     console.log('Payment successful:', session);
     // You can add database operations here to update user subscription status
-    
+
     return true;
   } catch (error) {
     console.error('Error handling payment:', error);

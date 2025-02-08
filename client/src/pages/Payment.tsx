@@ -11,7 +11,8 @@ const getStripe = () => {
   if (!stripePromise) {
     const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
     if (!key) {
-      throw new Error('Stripe publishable key is missing');
+      console.error('Stripe publishable key is missing');
+      return null;
     }
     stripePromise = loadStripe(key);
   }
@@ -66,6 +67,8 @@ export default function PaymentPage() {
         const stripe = await getStripe();
         if (stripe) {
           setInitialized(true);
+        } else {
+          throw new Error('Failed to initialize Stripe');
         }
       } catch (error) {
         console.error('Stripe initialization error:', error);
@@ -82,6 +85,10 @@ export default function PaymentPage() {
 
   const handlePayment = async (plan: typeof plans[0]) => {
     try {
+      if (!initialized) {
+        throw new Error('Payment system not initialized');
+      }
+
       setLoading(plan.id);
 
       const response = await fetch('/api/stripe/create-checkout-session', {
@@ -92,7 +99,7 @@ export default function PaymentPage() {
         body: JSON.stringify({
           planId: plan.id,
           planName: plan.name,
-          price: plan.price,
+          price: Math.round(plan.price * 100), // Convert to cents for Stripe
         }),
       });
 
