@@ -10,7 +10,7 @@ vi.mock('./client/src/env.d.ts', () => ({
 global.fetch = vi.fn();
 
 // Mock window.location
-delete window.location;
-window.location = {
-  href: '',
-} as unknown as Location;
+Object.defineProperty(window, 'location', {
+  value: { href: '' },
+  writable: true
+});

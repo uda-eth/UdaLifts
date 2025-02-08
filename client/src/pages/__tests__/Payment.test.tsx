@@ -36,16 +36,16 @@ describe('PaymentPage', () => {
   it('renders all plan options', () => {
     renderPaymentPage();
 
-    expect(screen.getByText('Basic Plan')).toBeDefined();
-    expect(screen.getByText('Premium Plan')).toBeDefined();
-    expect(screen.getByText('Elite Plan')).toBeDefined();
+    expect(screen.getByText('Basic Plan')).toBeTruthy();
+    expect(screen.getByText('Premium Plan')).toBeTruthy();
+    expect(screen.getByText('Elite Plan')).toBeTruthy();
   });
 
   it('shows loading state when initializing Stripe', async () => {
     (loadStripe as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => new Promise(() => {}));
     renderPaymentPage();
 
-    expect(screen.getByText('Loading Payment System...')).toBeDefined();
+    expect(screen.getByText('Loading Payment System...')).toBeTruthy();
   });
 
   it('handles successful payment initiation', async () => {
@@ -70,7 +70,7 @@ describe('PaymentPage', () => {
     fireEvent.click(subscribeButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Error')).toBeDefined();
+      expect(screen.getByText('Error')).toBeTruthy();
     });
   });
 
@@ -80,7 +80,7 @@ describe('PaymentPage', () => {
     const subscribeButton = screen.getByRole('button', { name: /Subscribe Now/i });
     fireEvent.click(subscribeButton);
 
-    expect(subscribeButton).toBeDisabled();
-    expect(screen.getByText('Processing...')).toBeDefined();
+    expect(subscribeButton.hasAttribute('disabled')).toBeTruthy();
+    expect(screen.getByText('Processing...')).toBeTruthy();
   });
 });
