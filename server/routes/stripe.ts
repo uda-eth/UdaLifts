@@ -109,9 +109,20 @@ router.post(
 );
 
 async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
-  // Implement your payment success logic here
-  console.log('Payment successful:', session);
-  // You can add database operations here to update user subscription status
+  try {
+    // Validate session data
+    if (!session?.subscription) {
+      throw new Error('No subscription data in session');
+    }
+    
+    console.log('Payment successful:', session);
+    // You can add database operations here to update user subscription status
+    
+    return true;
+  } catch (error) {
+    console.error('Error handling payment:', error);
+    throw error;
+  }
 }
 
 export default router;
