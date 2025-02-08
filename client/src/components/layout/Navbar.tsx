@@ -12,11 +12,6 @@ const navigation = [
 
 export default function Navbar() {
   const [location] = useLocation();
-  const { user, logout } = useUser();
-
-  const handleLogout = async () => {
-    await logout();
-  };
 
   return (
     <nav className="bg-white shadow-sm">
@@ -73,25 +68,6 @@ export default function Navbar() {
                       </a>
                     </Link>
                   ))}
-                  {user ? (
-                    <>
-                      <div className="px-3 py-2 text-sm text-gray-600">
-                        <User className="h-4 w-4 inline-block mr-1" />
-                        Welcome, {user.username}
-                      </div>
-                      <Button variant="outline" className="w-full" onClick={handleLogout}>
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Logout
-                      </Button>
-                    </>
-                  ) : (
-                    <Link href="/auth">
-                      <Button variant="outline" className="w-full">
-                        <LogIn className="h-4 w-4 mr-2" />
-                        Login / Sign up
-                      </Button>
-                    </Link>
-                  )}
                   <Button className="w-full">Get Started Now</Button>
                 </div>
               </SheetContent>
