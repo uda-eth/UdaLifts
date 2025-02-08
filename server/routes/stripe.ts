@@ -7,63 +7,43 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('STRIPE_SECRET_KEY must be set');
 }
 
-// Initialize Stripe with the secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',  // Using a stable version
+  apiVersion: '2023-10-16'
 });
 
-// Test mode price IDs - these should match the IDs in the frontend
-const TEST_PRICE_IDS = {
-  'price_1234': {
-    unit_amount: 2999,
-    currency: 'usd',
-    recurring: { interval: 'month' },
-    product_data: { name: 'Basic Plan' },
-  },
-  'price_5678': {
-    unit_amount: 4999,
-    currency: 'usd',
-    recurring: { interval: 'month' },
-    product_data: { name: 'Premium Plan' },
-  },
-  'price_9012': {
-    unit_amount: 9999,
-    currency: 'usd',
-    recurring: { interval: 'month' },
-    product_data: { name: 'Elite Plan' },
-  },
-};
-
+// Create a checkout session
 router.post('/create-checkout-session', async (req, res) => {
   try {
-    const { priceId, mode } = req.body;
+    const { planName } = req.body;
 
-    // Verify the price ID exists in our test mode configuration
-    if (!TEST_PRICE_IDS[priceId as keyof typeof TEST_PRICE_IDS]) {
-      return res.status(400).json({
-        error: 'Invalid price ID. Please select a valid subscription plan.',
-      });
+    // Define plan prices
+    const planPrices = {
+      'Basic Plan': 2999,
+      'Premium Plan': 4999,
+      'Elite Plan': 9999
+    };
+
+    const amount = planPrices[planName as keyof typeof planPrices];
+    if (!amount) {
+      return res.status(400).json({ error: 'Invalid plan selected' });
     }
-
-    // Create a product first
-    const product = await stripe.products.create({
-      name: TEST_PRICE_IDS[priceId as keyof typeof TEST_PRICE_IDS].product_data.name,
-    });
-
-    // Create a price for test mode
-    const price = await stripe.prices.create({
-      product: product.id,
-      unit_amount: TEST_PRICE_IDS[priceId as keyof typeof TEST_PRICE_IDS].unit_amount,
-      currency: TEST_PRICE_IDS[priceId as keyof typeof TEST_PRICE_IDS].currency,
-      recurring: TEST_PRICE_IDS[priceId as keyof typeof TEST_PRICE_IDS].recurring,
-    });
 
     // Create the checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: price.id,
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: planName,
+              description: 'Monthly fitness coaching subscription',
+            },
+            unit_amount: amount,
+            recurring: {
+              interval: 'month',
+            },
+          },
           quantity: 1,
         },
       ],
@@ -72,12 +52,39 @@ router.post('/create-checkout-session', async (req, res) => {
       cancel_url: `${req.protocol}://${req.get('host')}/payment`,
     });
 
-    res.json({ id: session.id });
+    res.json({ url: session.url });
   } catch (error) {
     console.error('Error creating checkout session:', error);
     res.status(500).json({
       error: error instanceof Error ? error.message : 'Failed to create checkout session',
     });
+  }
+});
+
+// Webhook to handle subscription events
+router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+
+  try {
+    const event = stripe.webhooks.constructEvent(
+      req.body,
+      sig || '',
+      process.env.STRIPE_WEBHOOK_SECRET || ''
+    );
+
+    switch (event.type) {
+      case 'checkout.session.completed':
+        const session = event.data.object;
+        // Handle successful payment
+        console.log('Payment successful:', session);
+        break;
+      // Add other webhook events as needed
+    }
+
+    res.json({ received: true });
+  } catch (err) {
+    console.error('Webhook Error:', err instanceof Error ? err.message : err);
+    res.status(400).send(`Webhook Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
   }
 });
 
