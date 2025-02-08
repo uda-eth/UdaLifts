@@ -5,7 +5,12 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
 // Initialize Stripe with the publishable key in test mode
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+
+// Verify stripe initialization
+if (!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) {
+  console.error('Missing Stripe publishable key');
+}
 
 const plans = {
   basic: {
@@ -50,7 +55,10 @@ const PaymentPage = () => {
   const handlePayment = async (planId: string) => {
     setLoading(planId);
     try {
-      // Add test mode indicator
+      if (!stripePromise) {
+        throw new Error('Stripe has not been initialized');
+      }
+
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: {

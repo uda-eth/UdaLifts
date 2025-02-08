@@ -3,9 +3,13 @@ import Stripe from 'stripe';
 
 const router = express.Router();
 
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('STRIPE_SECRET_KEY must be set');
+}
+
 // Initialize Stripe with the secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27.acacia',
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2023-10-16',  // Using a stable version
 });
 
 // Test mode price IDs - these should match the IDs in the frontend
