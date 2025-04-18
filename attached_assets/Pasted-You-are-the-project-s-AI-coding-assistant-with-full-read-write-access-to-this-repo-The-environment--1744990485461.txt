@@ -1,0 +1,175 @@
+You are the project’s AI coding assistant with full read/write access to this repo. The environment is already configured via Replit secrets:
+
+- `STRIPE_SECRET_KEY`  
+- `STRIPE_PUBLISHABLE_KEY`  
+- `VITE_STRIPE_PUBLISHABLE_KEY`  
+- `STRIPE_WEBHOOK_SECRET`  
+
+Below is the *exact* “How to Integrate Stripe with React/TS + Express + Drizzle ORM” guide. Your job is to execute each step, modifying files or creating new ones as needed, then verify that everything works. Do **not** skip any step or assume anything; spell out every change.
+
+---
+
+## How to Integrate Stripe with React/TS + Express + Drizzle ORM
+
+1. **Prerequisites**  
+   - Node.js and PostgreSQL are installed.  
+   - Stripe API keys are in the environment.  
+
+2. **Installation**  
+   ```bash
+   # Frontend
+   npm install @stripe/stripe-js @stripe/react-stripe-js
+
+   # Backend
+   npm install stripe body-parser
+Environment Setup
+In .env at project root, ensure:
+
+ini
+Copy
+Edit
+STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
+VITE_STRIPE_PUBLISHABLE_KEY=${VITE_STRIPE_PUBLISHABLE_KEY}
+STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+Frontend Integration
+
+Load Stripe client
+
+ts
+Copy
+Edit
+// src/client/stripe.ts
+import { loadStripe, Stripe } from '@stripe/stripe-js';
+let stripePromise: Promise<Stripe | null>;
+export const getStripe = () => {
+  if (!stripePromise) {
+    stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+  }
+  return stripePromise;
+};
+Implement checkout handler (e.g. in EventPage.tsx):
+
+ts
+Copy
+Edit
+const handleCheckout = async (sessionId: string) => {
+  const stripe = await getStripe();
+  const { error } = await stripe?.redirectToCheckout({ sessionId });
+  if (error) console.error('Stripe checkout error:', error);
+};
+Backend Routes
+
+Create-checkout-session
+
+ts
+Copy
+Edit
+// src/server/routes/payments.ts
+import express, { Request, Response } from 'express';
+import Stripe from 'stripe';
+const router = express.Router();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2022-11-15' });
+
+router.post('/api/payments/create-checkout-session', async (req: Request, res: Response) => {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: req.body.line_items,
+    mode: 'payment',
+    success_url: 'http://localhost:5173/success',
+    cancel_url: 'http://localhost:5173/cancel',
+  });
+  res.json({ id: session.id });
+});
+export default router;
+Webhook handler
+
+ts
+Copy
+Edit
+// src/server/routes/webhooks.ts
+import express, { Request, Response } from 'express';
+import Stripe from 'stripe';
+const router = express.Router();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2022-11-15' });
+
+router.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), (req: Request, res: Response) => {
+  const sig = req.headers['stripe-signature'] as string;
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+  } catch (err: any) {
+    console.error(`Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.log('Checkout session completed:', session);
+    // Persist with Drizzle ORM here
+  }
+  res.json({ received: true });
+});
+export default router;
+Database Persistence
+
+ts
+Copy
+Edit
+// src/server/db/schema.ts
+import { pgTable, serial, text, integer } from 'drizzle-orm/pg-core';
+export const payments = pgTable('payments', {
+  id: serial('id').primaryKey(),
+  stripeId: text('stripe_id'),
+  amount: integer('amount'),
+});
+Webhook Security & Testing
+
+Confirm STRIPE_WEBHOOK_SECRET is set in Replit secrets.
+
+Run locally:
+
+bash
+Copy
+Edit
+stripe listen --forward-to localhost:5000/api/webhooks/stripe
+Testing with Vitest
+
+ts
+Copy
+Edit
+// tests/payments.test.ts
+import request from 'supertest';
+import app from '../src/server/app';
+describe('Payments API', () => {
+  it('creates a checkout session', async () => {
+    const res = await request(app)
+      .post('/api/payments/create-checkout-session')
+      .send({ line_items: [] });
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBeDefined();
+  });
+});
+Verify Integration
+
+Use TanStack Query in React to call /api/payments/create-checkout-session.
+
+Trigger handleCheckout with the returned session ID.
+
+Confirm you land on Stripe’s hosted checkout.
+
+Check your Postgres payments table for a new record after webhook.
+
+Your Action Plan
+Install all Stripe packages.
+
+Create or update the files above exactly as shown.
+
+Wire up Drizzle ORM persistence.
+
+Enable and test webhooks.
+
+Write and run the Vitest test.
+
+Demonstrate a successful checkout in your browser and confirm the DB insert.
+
+After each step, run your tests and log any errors. When everything passes and a real test card purchase succeeds, reply with “✅ Stripe integration complete.”
