@@ -2,7 +2,7 @@
 import express, { Request, Response } from 'express';
 import Stripe from 'stripe';
 import { db } from '../../db';
-import { payments } from './schema';
+import { payments } from '../../db/schema';
 
 const router = express.Router();
 
