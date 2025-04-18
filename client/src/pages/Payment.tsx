@@ -1,23 +1,9 @@
-import { useState, useEffect } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-
-// Initialize Stripe with proper error handling
-let stripePromise: Promise<any> | null = null;
-
-const getStripe = () => {
-  if (!stripePromise) {
-    const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-    if (!key) {
-      console.error('Stripe publishable key is missing');
-      return null;
-    }
-    stripePromise = loadStripe(key);
-  }
-  return stripePromise;
-};
+import { useQueryClient } from '@tanstack/react-query';
+import { getStripe } from '@/lib/stripe';
 
 const plans = [
   {
@@ -59,60 +45,56 @@ const plans = [
 export default function PaymentPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const { toast } = useToast();
-  const [initialized, setInitialized] = useState(false);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const initializeStripe = async () => {
-      try {
-        const stripe = await getStripe();
-        if (stripe) {
-          setInitialized(true);
-        } else {
-          throw new Error('Failed to initialize Stripe');
-        }
-      } catch (error) {
-        console.error('Stripe initialization error:', error);
-        toast({
-          title: "Configuration Error",
-          description: "Payment system is not properly configured. Please try again later.",
-          variant: "destructive",
-        });
+  const handleCheckout = async (sessionId: string) => {
+    try {
+      const stripe = await getStripe();
+      if (!stripe) {
+        throw new Error('Failed to initialize Stripe');
       }
-    };
-
-    initializeStripe();
-  }, [toast]);
+      
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+      
+      if (error) {
+        console.error('Stripe checkout error:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: 'Checkout Error',
+        description: error instanceof Error ? error.message : 'Failed to redirect to checkout',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handlePayment = async (plan: typeof plans[0]) => {
     try {
-      if (!initialized) {
-        throw new Error('Payment system not initialized');
-      }
-
       setLoading(plan.id);
-
-      const response = await fetch('/api/stripe/create-checkout-session', {
+      
+      const response = await fetch('/api/payments/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          planId: plan.id,
-          planName: plan.name,
-          price: Math.round(plan.price * 100), // Convert to cents for Stripe
+        body: JSON.stringify({ 
+          planName: plan.name
         }),
       });
-
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error occurred' }));
+        const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to create checkout session');
       }
-
-      const { url } = await response.json();
-      if (url) {
-        window.location.href = url;
+      
+      const { id: sessionId } = await response.json();
+      
+      if (sessionId) {
+        await handleCheckout(sessionId);
       } else {
-        throw new Error('Invalid response from server');
+        throw new Error('No session ID returned from the server');
       }
     } catch (error) {
       console.error('Payment error:', error);
@@ -121,21 +103,9 @@ export default function PaymentPage() {
         description: error instanceof Error ? error.message : 'Something went wrong with the payment process',
         variant: 'destructive',
       });
-    } finally {
       setLoading(null);
     }
   };
-
-  if (!initialized) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-4xl font-bold mb-4">Loading Payment System...</h1>
-        <p className="text-lg text-gray-600">
-          Please wait while we initialize the payment system.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -144,8 +114,8 @@ export default function PaymentPage() {
         <p className="text-lg text-gray-600">
           Select the plan that best fits your goals and commitment level
         </p>
-        <div className="mt-4 p-2 bg-yellow-100 text-yellow-800 rounded-md">
-          Test Mode - Use card number 4242 4242 4242 4242 for testing
+        <div className="mt-4 p-2 bg-green-100 text-green-800 rounded-md">
+          Secure payments powered by Stripe - Subscribe now to start your fitness journey
         </div>
       </div>
 

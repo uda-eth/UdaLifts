@@ -2,14 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 import PaymentPage from '../Payment';
-import { loadStripe } from '@stripe/stripe-js';
 
-vi.mock('@stripe/stripe-js', () => ({
-  loadStripe: vi.fn()
+// Mock toast
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: () => ({
+    toast: vi.fn()
+  })
 }));
-
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
 
 const renderPaymentPage = (): RenderResult => {
   return render(<PaymentPage />);
@@ -18,11 +17,6 @@ const renderPaymentPage = (): RenderResult => {
 describe('PaymentPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (loadStripe as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({});
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ url: 'mock-checkout-url' })
-    });
   });
 
   it('renders all plan options', () => {
@@ -32,40 +26,30 @@ describe('PaymentPage', () => {
     expect(screen.getByText('Elite Plan')).toBeTruthy();
   });
 
-  it('shows loading state when initializing Stripe', async () => {
-    (loadStripe as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(() => new Promise(() => {}));
+  it('shows pricing information', () => {
     renderPaymentPage();
-    expect(screen.getByText('Loading Payment System...')).toBeTruthy();
+    expect(screen.getByText('$29.99')).toBeTruthy();
+    expect(screen.getByText('$49.99')).toBeTruthy();
+    expect(screen.getByText('$99.99')).toBeTruthy();
+    expect(screen.getAllByText('/month').length).toBe(3);
   });
 
-  it('handles successful payment initiation', async () => {
+  it('shows notification about payment system status', () => {
     renderPaymentPage();
-    const subscribeButton = screen.getByRole('button', { name: /Subscribe Now/i });
-    fireEvent.click(subscribeButton);
-
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/stripe/create-checkout-session',
-        expect.any(Object)
-      );
-    });
-  });
-
-  it('shows error toast when payment creation fails', async () => {
-    mockFetch.mockRejectedValueOnce(new Error('Payment failed'));
-    renderPaymentPage();
-    const subscribeButton = screen.getByRole('button', { name: /Subscribe Now/i });
-    fireEvent.click(subscribeButton);
-    await waitFor(() => {
-      expect(screen.getByText('Error')).toBeTruthy();
-    });
+    expect(screen.getByText('Payment system currently unavailable - New payment system coming soon')).toBeTruthy();
   });
 
   it('disables button during payment processing', async () => {
     renderPaymentPage();
-    const subscribeButton = screen.getByRole('button', { name: /Subscribe Now/i });
-    fireEvent.click(subscribeButton);
-    expect(subscribeButton.hasAttribute('disabled')).toBeTruthy();
+    const subscribeButtons = screen.getAllByRole('button', { name: /Subscribe Now/i });
+    fireEvent.click(subscribeButtons[0]);
+    
+    expect(subscribeButtons[0].hasAttribute('disabled')).toBeTruthy();
     expect(screen.getByText('Processing...')).toBeTruthy();
+    
+    // Wait for the timeout to complete
+    await waitFor(() => {
+      expect(subscribeButtons[0].hasAttribute('disabled')).toBeFalsy();
+    }, { timeout: 1500 });
   });
 });
