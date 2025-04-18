@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { getStripe } from '@/lib/stripe';
 
 const plans = [
   {
@@ -43,25 +45,62 @@ const plans = [
 export default function PaymentPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const handleCheckout = async (sessionId: string) => {
+    try {
+      const stripe = await getStripe();
+      if (!stripe) {
+        throw new Error('Failed to initialize Stripe');
+      }
+      
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+      
+      if (error) {
+        console.error('Stripe checkout error:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: 'Checkout Error',
+        description: error instanceof Error ? error.message : 'Failed to redirect to checkout',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handlePayment = async (plan: typeof plans[0]) => {
     try {
       setLoading(plan.id);
       
-      // For now, we just show a success message since we've removed the payment processing
-      setTimeout(() => {
-        toast({
-          title: 'Coming Soon',
-          description: `The ${plan.name} subscription will be available soon. Thank you for your interest!`,
-          variant: 'default',
-        });
-        setLoading(null);
-      }, 1000);
+      const response = await fetch('/api/payments/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          planName: plan.name
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create checkout session');
+      }
+      
+      const { id: sessionId } = await response.json();
+      
+      if (sessionId) {
+        await handleCheckout(sessionId);
+      } else {
+        throw new Error('No session ID returned from the server');
+      }
     } catch (error) {
-      console.error('Payment action error:', error);
+      console.error('Payment error:', error);
       toast({
-        title: 'Error',
-        description: 'We encountered an error. Please try again later.',
+        title: 'Payment Error',
+        description: error instanceof Error ? error.message : 'Something went wrong with the payment process',
         variant: 'destructive',
       });
       setLoading(null);
@@ -75,8 +114,8 @@ export default function PaymentPage() {
         <p className="text-lg text-gray-600">
           Select the plan that best fits your goals and commitment level
         </p>
-        <div className="mt-4 p-2 bg-yellow-100 text-yellow-800 rounded-md">
-          Payment system currently unavailable - New payment system coming soon
+        <div className="mt-4 p-2 bg-green-100 text-green-800 rounded-md">
+          Secure payments powered by Stripe - Subscribe now to start your fitness journey
         </div>
       </div>
 
